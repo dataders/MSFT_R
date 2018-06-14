@@ -32,7 +32,6 @@ xdf_str <- list(
 
 nyc_xdf <- xdf_str %>% map(RxXdfData)
 
-
 rxsum_xdf <- rxSummary( ~ fare_amount, nyc_xdf$input) # provide statistical summaries for fare amount
 rxsum_xdf
 
@@ -45,33 +44,48 @@ rxGetInfo(nyc_xdf$input, getVarInfo = TRUE, numRows = 5)
 
 rxSummary(~ RatecodeID + payment_type, nyc_xdf$input)
 
-ratecode_factor <- list(
-    levels = c(1:6,99), 
-    labels = c("Standard Rate", "JFK", "Newark", "Group Ride",
-               "Nassau or Westchester","Negotiated Fare", NA)
-)
+# Transformation Function -------------------------------------------------
 
-payment_factor <- list(
-    levels = 1:6,
-    labels = c("Credit card", "Cash", "No Charge", "Dispute",
-                         "Unknown", "Voided Trip")
-)
+factorize <- function(data) {
+    
+    data$Ratecode_type_desc <- factor(
+        data$RatecodeID,
+        levels = c(1:6,99),
+        labels = c("Standard Rate", "JFK", "Newark",
+                   "Group Ride",
+                   "Nassau or Westchester",
+                   "Negotiated Fare", NA)
+    )
+    data$payment_type_desc <- factor(
+        data$payment_type,
+        levels = 1:6,
+        labels = c("Credit card", "Cash",
+                   "No Charge", "Dispute",
+                   "Unknown", "Voided Trip"),
+        exclude = c("No Charge", "Dispute",
+        "Unknown", "Voided Trip")
+    )
+    data
+}
 
+
+# Testing -----------------------------------------------------------------
+
+# create small testing df 
+df_test <- rxDataStep(nyc_xdf$input, numRows = 1000)
+
+# does function work with df?
+test1 <- factorize2(df_test)
+# and inside of rxDataStep?
+test2 <- rxDataStep(df_test, 
+                   transformFunc = factorize2)
+# and on the whole data set?/
 rxDataStep(nyc_xdf$input, nyc_xdf$stage, overwrite = TRUE, 
-           transforms = list(
-    Ratecode_type_desc = factor(RatecodeID,
-                                levels = ratecode_factor$levels,
-                                labels = ratecode_factor$labels
-                                ),
-    payment_type_desc = factor(payment_type,
-                               levels = payment_factor$levels,
-                               labels = payment_factor$labels)
-    ))
+           transformFunc = factorize2)
 
 
+rxSummary(~ Ratecode_type_desc + payment_type_desc, nyc_xdf$stage)
 
-rxSummary(~ Ratecode_type_desc + payment_type_desc, xdf_str$stage)
+rxSummary(~ payment_type + payment_type_desc, nyc_xdf$stage)
 
-rxSummary(~ payment_type + payment_type_desc, xdf_str$stage)
-
-rxSummary(~ RatecodeID + Ratecode_type_desc, xdf_str$stage)
+rxSummary(~ RatecodeID + Ratecode_type_desc, nyc_xdf$stage)
