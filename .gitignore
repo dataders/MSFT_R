@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+stage/**
+untouched/**
+data/**
+Analyzing_data_with_MRS.R
