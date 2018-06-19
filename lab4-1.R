@@ -28,4 +28,14 @@ mht <- fname %>% map(RxXdfData)
 rxSummary(~ tip_percent, mht$input)
 
 
-model <- rxLinMod(tip_percent ~ trip_duration + pickup_dow:pickup_hour, mht$input)
+# Q1 & Q2 -----------------------------------------------------------------
+
+model <- list(
+    one = "tip_percent ~ trip_duration + pickup_dow:pickup_hour",
+    two = "tip_percent ~ payment_type_desc + trip_duration + pickup_dow:pickup_hour"
+    ) %>%
+    map(as.formula) %>%
+    map(rxLinMod, data = mht$input)
+
+map(model, "adj.r.squared")
+
