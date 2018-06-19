@@ -1,0 +1,52 @@
+
+
+
+```{r}
+library(RevoScaleR)
+library(UsingR)
+library(tidyverse)
+```
+
+```{r}
+regfit<-lm(sheight ~ fheight, data=father.son)
+```
+
+```{r}
+regfit2<-rxLinMod(sheight ~ fheight, data=father.son)
+```
+
+```{r}
+?RxInSqlServer
+```
+
+```{r}
+str(airquality)
+rxImport(airquality, 'airquality.xdf', overwrite = TRUE)
+```
+
+```{r}
+rxct <- rxCrossTabs(Temp ~ Day:Month, 'airquality.xdf'
+                    # ,means = TRUE
+                    , verbose = 1
+                    ,transforms = list(Month = as.factor(Month),
+                                      Day = as.factor(Day)))
+# summary(rxct)
+
+print(rxct, output = "means")
+# print(rxct)
+```
+
+```{r}
+rxct2 <- rxCrossTabs(Temp ~ Day:Month, 'airquality.xdf'
+                     # , means = TRUE
+                     ,transforms = list(Month = as.factor(Month),
+                                      Day = as.factor(Day)))
+print(rxct2)
+```
+
+```{r}
+regfit2 <- rxLinMod(sheight ~ fheight, data=father.son) 
+
+regfit2$
+```
+
